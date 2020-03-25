@@ -6,6 +6,7 @@ ARCH="ARCH"
 DISK_NUM=""
 DISK=""
 TMP_FOLDER="tmp"
+TMP_CONFIG_DIR="$TMP_FOLDER/config"
 OS="$RASPBIAN"
 IMAGE_FILE=""
 IMAGE_FILE_PATH=""
@@ -149,11 +150,15 @@ move_img_to_disk() {
   fi
 }
 
+create_config_dir() {
+  mkdir -p "$TMP_CONFIG_DIR"
+}
+
 setup_wifi() {
   echo "=== Setting up wifi"
   if [ -n "${PASSWORDS[*]}" ]; then
-    rm -f "$TMP_FOLDER/wpa_supplicant.conf"
-    cat <<EOF >>"$TMP_FOLDER/wpa_supplicant.conf"
+    rm -f "$TMP_CONFIG_DIR/wpa_supplicant.conf"
+    cat <<EOF >>"$TMP_CONFIG_DIR/wpa_supplicant.conf"
 country=NO
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
@@ -164,7 +169,7 @@ EOF
     NETWORKS_LEN=${#PASSWORDS[@]}
     for ((i = 0; i < "${NETWORKS_LEN}"; i++)); do
       echo "${PASSWORDS[$i]}"
-      cat <<EOF >>"$TMP_FOLDER/wpa_supplicant.conf"
+      cat <<EOF >>"$TMP_CONFIG_DIR/wpa_supplicant.conf"
 network={
         ssid="${SSIDS[$i]}"
         psk="${PASSWORDS[$i]}"
@@ -179,7 +184,12 @@ EOF
 
 setup_ssh() {
   echo "=== Setting up ssh"
-  touch "$TMP_FOLDER/ssh"
+  touch "$TMP_CONFIG_DIR/ssh"
+}
+
+move_config_to_disk() {
+  echo "=== Moving configs"
+  cp "$TMP_CONFIG_DIR/"* "/Volumes/boot/"
 }
 
 setup_pi_disk() {
@@ -193,9 +203,10 @@ setup_pi_disk() {
 
   move_img_to_disk
 
+  create_config_dir
   setup_wifi
-
   setup_ssh
+  move_config_to_disk
 }
 
 setup_pi_disk "$@"
