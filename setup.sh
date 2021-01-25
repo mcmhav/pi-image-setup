@@ -200,6 +200,11 @@ move_config_to_disk() {
   cp "$TMP_CONFIG_DIR/"* "/Volumes/boot/"
 }
 
+unmount_disk() {
+  loggit "Unmounting disk"
+  diskutil unmountDisk "/dev/$DISK"
+}
+
 setup_pi_disk() {
   read_config
 
@@ -217,6 +222,7 @@ setup_pi_disk() {
   setup_wifi
   setup_ssh
   move_config_to_disk
+  unmount_disk
 }
 
 setup_pi_disk "$@"
