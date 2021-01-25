@@ -22,6 +22,15 @@ where:
   -h, --help            show this help text
 "
 
+read_config() {
+  loggit "Reading config"
+  if [ -f "./config" ]; then
+    source "./config"
+  else
+    loggit "No config found, will be relying on input options"
+  fi
+}
+
 set_inputs() {
   while [ "$1" != "" ]; do
     case $1 in
@@ -78,6 +87,7 @@ set_inputs() {
 
   if [ -z "$DISK" ] || [ -z "$DISK_NUM" ]; then
     loggit "No disk!"
+    loggit "run 'diskutil list' to find disk and disknumber"
     exit
   fi
 
@@ -159,11 +169,9 @@ setup_wifi() {
   if [ -n "${PASSWORDS[*]}" ]; then
     rm -f "$TMP_CONFIG_DIR/wpa_supplicant.conf"
     cat <<EOF >>"$TMP_CONFIG_DIR/wpa_supplicant.conf"
-country=NO
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
-tls_disable_tlsv1_0=1
-tls_disable_tlsv1_1=1
+country=NO
 
 EOF
     NETWORKS_LEN=${#PASSWORDS[@]}
@@ -171,9 +179,8 @@ EOF
       echo "${PASSWORDS[$i]}"
       cat <<EOF >>"$TMP_CONFIG_DIR/wpa_supplicant.conf"
 network={
-        ssid="${SSIDS[$i]}"
-        psk="${PASSWORDS[$i]}"
-        key_mgmt=WPA-PSK
+ssid="${SSIDS[$i]}"
+psk="${PASSWORDS[$i]}"
 }
 
 EOF
@@ -189,10 +196,13 @@ setup_ssh() {
 
 move_config_to_disk() {
   echo "=== Moving configs"
+  sleep 3
   cp "$TMP_CONFIG_DIR/"* "/Volumes/boot/"
 }
 
 setup_pi_disk() {
+  read_config
+
   set_inputs "$@"
 
   get_image
