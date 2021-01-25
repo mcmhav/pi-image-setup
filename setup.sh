@@ -8,6 +8,7 @@ DISK=""
 TMP_FOLDER="tmp"
 TMP_CONFIG_DIR="$TMP_FOLDER/config"
 OS="$RASPBIAN"
+PI_HOSTNAME="raspberrypi"
 IMAGE_FILE=""
 IMAGE_FILE_PATH=""
 PASSWORDS=()
@@ -176,7 +177,6 @@ country=NO
 EOF
     NETWORKS_LEN=${#PASSWORDS[@]}
     for ((i = 0; i < "${NETWORKS_LEN}"; i++)); do
-      echo "${PASSWORDS[$i]}"
       cat <<EOF >>"$TMP_CONFIG_DIR/wpa_supplicant.conf"
 network={
 ssid="${SSIDS[$i]}"
@@ -192,6 +192,14 @@ EOF
 setup_ssh() {
   echo "=== Setting up ssh"
   touch "$TMP_CONFIG_DIR/ssh"
+}
+
+setup_script() {
+  if [ "$OS" == "$RASPBIAN" ]; then
+    loggit "Setting up setupfile"
+    cp "raspbian_setup.sh" "$TMP_CONFIG_DIR"
+    sed -i "" "s/<<HOSTNAME>>/$PI_HOSTNAME/" "$TMP_CONFIG_DIR/raspbian_setup.sh"
+  fi
 }
 
 move_config_to_disk() {
@@ -221,6 +229,7 @@ setup_pi_disk() {
   create_config_dir
   setup_wifi
   setup_ssh
+  setup_script
   move_config_to_disk
   unmount_disk
 }
