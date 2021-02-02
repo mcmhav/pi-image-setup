@@ -46,6 +46,9 @@ END
 # Set password
 sudo passwd pi
 
+# Clear splash text
+sudo sh -c 'echo "" >> /etc/motd'
+
 # Update packages
 sudo apt-get update
 sudo apt-get -y upgrade
