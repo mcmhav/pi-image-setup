@@ -50,11 +50,11 @@ sudo passwd pi
 sudo sh -c 'echo "" > /etc/motd'
 
 # Update packages
-sudo apt-get update
-sudo apt-get -y upgrade
+sudo apt update
+sudo apt -y upgrade
 
 # Install required packages
-sudo apt-get install -y git jq
+sudo apt install -y git jq
 
 # Install s-repo
 mkdir "$HOME/r"
