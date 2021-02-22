@@ -194,6 +194,12 @@ setup_ssh() {
   touch "$TMP_CONFIG_DIR/ssh"
 }
 
+setup_secrets() {
+  echo "=== Setting up secrets"
+  cp "$HOME/r/s/sys-setup/bash/bashrc/.secrets" "$TMP_CONFIG_DIR/secrets"
+  chmod +x "$TMP_CONFIG_DIR/secrets"
+}
+
 setup_script() {
   if [ "$OS" == "$RASPBIAN" ]; then
     loggit "Setting up setupfile"
@@ -205,11 +211,13 @@ setup_script() {
 move_config_to_disk() {
   echo "=== Moving configs"
   sleep 3
+  diskutil mountDisk "/dev/$DISK"
   cp "$TMP_CONFIG_DIR/"* "/Volumes/boot/"
 }
 
 unmount_disk() {
   loggit "Unmounting disk"
+  sleep 3
   diskutil unmountDisk "/dev/$DISK"
 }
 
@@ -229,6 +237,7 @@ setup_pi_disk() {
   create_config_dir
   setup_wifi
   setup_ssh
+  setup_secrets
   setup_script
   move_config_to_disk
   unmount_disk

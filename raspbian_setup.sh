@@ -47,7 +47,7 @@ END
 sudo passwd pi
 
 # Clear splash text
-sudo sh -c 'echo "" >> /etc/motd'
+sudo sh -c 'echo "" > /etc/motd'
 
 # Update packages
 sudo apt-get update
@@ -57,8 +57,10 @@ sudo apt-get -y upgrade
 sudo apt-get install -y git
 
 # Install s-repo
-mkdir ~/r
-cd r || exit
+mkdir "$HOME/r"
+cd "$HOME/r" || exit
 git clone https://github.com/mcmhav/s.git
 cd s/sys-setup || exit
 ./initNewSys.sh
+
+git remote set-url origin git@github.com:mcmhav/s.git
