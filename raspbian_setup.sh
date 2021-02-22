@@ -53,14 +53,28 @@ sudo sh -c 'echo "" > /etc/motd'
 sudo apt-get update
 sudo apt-get -y upgrade
 
-# Install git
-sudo apt-get install -y git
+# Install required packages
+sudo apt-get install -y git jq
 
 # Install s-repo
 mkdir "$HOME/r"
 cd "$HOME/r" || exit
 git clone https://github.com/mcmhav/s.git
+
+# Setting up secrets
+sudo mv /boot/secrets "$HOME/r/s/sys-setup/bash/bashrc/.secrets"
+chown pi "$HOME/r/s/sys-setup/bash/bashrc/.secrets"
+chmod -x "$HOME/r/s/sys-setup/bash/bashrc/.secrets"
+
+# Setting up ssh-key
+"$HOME"/r/s/sys-setup/bin/sshGen
+"$HOME"/r/s/sys-setup/bin/github_key_manager add -t "<<HOSTNAME>>"
+"$HOME"/r/s/sys-setup/bin/github_key_manager get \
+    | jq -r '.[] | .key + " " + .title' > "$HOME/.ssh/authorized_keys"
+
+# Installing
 cd s/sys-setup || exit
 ./initNewSys.sh
 
 git remote set-url origin git@github.com:mcmhav/s.git
+
