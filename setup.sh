@@ -40,6 +40,8 @@ set_inputs() {
       if test $# -gt 0; then
         DISK_NUM=$1
         DISK="disk$DISK_NUM"
+        IDENTIFIER="s2"
+        DISK_IDENTIFIER="disk$DISK_NUM$IDENTIFIER"
       else
         loggit "no disk"
         exit 1
